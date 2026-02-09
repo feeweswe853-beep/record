@@ -11,6 +11,10 @@ if (!TOKEN) {
   process.exit(1);
 }
 
+// libsodium is required by @discordjs/voice for encryption modes (voice encryption)
+const sodium = require('libsodium-wrappers');
+
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -227,4 +231,11 @@ async function stopSessionRecordingAndSend(guildId) {
   } catch (e) { console.error('Error sending recordings', e); }
 }
 
-client.login(TOKEN);
+// Wait for libsodium to be ready before logging in so voice encryption works
+sodium.ready.then(() => {
+  console.log('libsodium ready — logging in');
+  client.login(TOKEN);
+}).catch((err) => {
+  console.error('Failed to initialize libsodium:', err);
+  process.exit(1);
+});
