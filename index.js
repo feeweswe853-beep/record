@@ -12,7 +12,7 @@ if (!TOKEN) {
 }
 
 // libsodium is required by @discordjs/voice for encryption modes (voice encryption)
-const sodium = require('libsodium-wrappers');
+const sodium = require('libsodium-wrappers-sumo');
 
 
 const client = new Client({
