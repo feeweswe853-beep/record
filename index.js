@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Client, GatewayIntentBits, Partials, Routes, PermissionsBitField, ChannelType } = require('discord.js');
-const { JoinVoiceChannel, joinVoiceChannel } = require('@discordjs/voice');
+// Do not require @discordjs/voice at top-level — require it after libsodium is ready
 const { REST } = require('@discordjs/rest');
 const Recorder = require('./recorder');
 
@@ -121,6 +121,8 @@ async function joinAndPrepare(guildId, voiceChannelId, selfDeaf = true) {
   const guild = await client.guilds.fetch(guildId);
   const channel = await guild.channels.fetch(voiceChannelId);
   if (!channel) throw new Error('Voice channel not found');
+  // Require voice module here after libsodium is initialized
+  const { joinVoiceChannel } = require('@discordjs/voice');
   const connection = joinVoiceChannel({
     channelId: channel.id,
     guildId: guild.id,
