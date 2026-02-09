@@ -122,13 +122,26 @@ async function joinAndPrepare(guildId, voiceChannelId, selfDeaf = true) {
   const channel = await guild.channels.fetch(voiceChannelId);
   if (!channel) throw new Error('Voice channel not found');
   // Require voice module here after libsodium is initialized
-  const { joinVoiceChannel } = require('@discordjs/voice');
-  const connection = joinVoiceChannel({
-    channelId: channel.id,
-    guildId: guild.id,
-    adapterCreator: guild.voiceAdapterCreator,
-    selfDeaf,
-  });
+  let connection;
+  try {
+    const { joinVoiceChannel } = require('@discordjs/voice');
+    connection = joinVoiceChannel({
+      channelId: channel.id,
+      guildId: guild.id,
+      adapterCreator: guild.voiceAdapterCreator,
+      selfDeaf,
+    });
+  } catch (err) {
+    console.error('Failed to join voice channel — check libsodium and @discordjs/voice:', err);
+    throw err;
+  }
+
+  // attach network/error logging for debugging
+  try {
+    if (connection && connection.on) {
+      connection.on('error', (e) => console.error('Voice connection error event:', e));
+    }
+  } catch (e) { console.warn('Failed to attach connection error handler', e); }
 
   // prepare session
   const textChannel = config[guildId] && config[guildId].textChannelId ? await guild.channels.fetch(config[guildId].textChannelId) : null;
