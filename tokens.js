@@ -14,13 +14,5 @@ export default [
             status: "idle",
         },
         selfMute: true,
-        // إعدادات الستريم الجديد
-        stream: {
-            enabled: true, // تفعيل فتح الاستريم
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // رابط الفيديو للبث (اختياري)
-            type: "screen", // "screen" أو "youtube" أو "video"
-            title: "24/7 Live Stream", // عنوان البث
-            resolution: "1920x1080" // دقة البث
-        }
     },
 ];
