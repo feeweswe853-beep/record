@@ -1,10 +1,8 @@
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
-
 const blackListedEvents = ["CHANNEL_UNREAD_UPDATE", "CONVERSATION_SUMMARY_UPDATE", "SESSIONS_REPLACE"];
 const GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json';
 const statusList = ["online", "idle", "dnd", "invisible", "offline"];
-
 export class voiceClient extends EventEmitter {
     ws = null;
     heartbeatInterval;
@@ -19,11 +17,9 @@ export class voiceClient extends EventEmitter {
     channelId;
     selfMute;
     selfDeaf;
-    selfVideo; // ← إضافة هذا المتغير
     autoReconnect;
     presence;
     user_id = null;
-
     constructor(config) {
         super();
         if (!config.token) {
@@ -34,7 +30,6 @@ export class voiceClient extends EventEmitter {
         this.channelId = config?.channelId;
         this.selfMute = config.selfMute ?? true;
         this.selfDeaf = config.selfDeaf ?? true;
-        this.selfVideo = config.selfVideo ?? false; // ← إضافة هذا السطر
         this.autoReconnect = {
             enabled: config.autoReconnect.enabled ?? false,
             delay: (config.autoReconnect.delay ?? 1) * 1000,
@@ -44,7 +39,6 @@ export class voiceClient extends EventEmitter {
             this.presence = config.presence;
         }
     }
-
     connect() {
         if (this.invalidSession)
             return;
@@ -142,14 +136,12 @@ export class voiceClient extends EventEmitter {
             this.emit('debug', `WebSocket error: ${err.message}`);
         });
     }
-
     startHeartbeat(interval) {
         this.heartbeatInterval = setInterval(() => {
             this.ws?.send(JSON.stringify({ op: 1, d: this.sequenceNumber }));
             this.emit('debug', 'Sending heartbeat');
         }, interval);
     }
-
     identify() {
         const payload = {
             op: 2,
@@ -166,7 +158,6 @@ export class voiceClient extends EventEmitter {
         this.ws?.send(JSON.stringify(payload));
         this.emit('debug', 'Sending identify payload');
     }
-
     joinVoiceChannel() {
         if (!this.guildId || !this.channelId)
             return;
@@ -176,24 +167,21 @@ export class voiceClient extends EventEmitter {
                 guild_id: this.guildId,
                 channel_id: this.channelId,
                 self_mute: this.selfMute,
-                self_deaf: this.selfDeaf,
-                self_video: this.selfVideo // ← إضافة هذا السطر
+                self_deaf: this.selfDeaf
             }
         };
         this.ws?.send(JSON.stringify(voiceStateUpdate));
-        this.emit('debug', '🎤 Sent voice channel join request (with video)');
+        this.emit('debug', '🎤 Sent voice channel join request');
         setTimeout(() => {
             this.ignoreReconnect = false;
         }, 1000);
     }
-
     cleanup() {
         if (this.heartbeatInterval)
             clearInterval(this.heartbeatInterval);
         this.ws = null;
         this.sequenceNumber = null;
     }
-
     sendStatusUpdate() {
         const status = this?.presence?.status?.toLowerCase();
         if (!status || !statusList.includes(status))
@@ -210,7 +198,6 @@ export class voiceClient extends EventEmitter {
         this.ws?.send(JSON.stringify(payload));
         this.emit('debug', `Status updated to ${this.presence.status}`);
     }
-
     disconnect() {
         this.cleanup();
         this.emit('debug', 'Client manually disconnected');

@@ -5,8 +5,6 @@ export default [
         serverId: "1344059457046319198",
         token: process.env.token1,
         selfDeaf: false,
-        selfMute: true,
-        selfVideo: true, // ← إضافة هذا السطر لتشغيل الكاميرا/الستريم
         autoReconnect: {
             enabled: true,
             delay: 5, // ثواني
@@ -15,5 +13,6 @@ export default [
         presence: {
             status: "idle",
         },
+        selfMute: true,
     },
 ];
