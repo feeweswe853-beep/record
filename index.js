@@ -1,12 +1,14 @@
 import { voiceClient } from "./client.js";
 import tokens from "./tokens.js";
 import express from 'express';
+
 const app = express();
 const port = 3000;
 let url = "";
 let uptimeDate = Date.now();
 let requests = 0;
 let response = null;
+
 app.use((req, res, next) => {
     const hostname = req.hostname;
     const subdomain = hostname.split('.')[0];
@@ -16,14 +18,19 @@ app.use((req, res, next) => {
     url = `https://${subdomain}.${domain}/`;
     next();
 });
+
 app.get('/', (req, res) => res.send('Hello World!'));
+
 app.listen(port, () => console.log(`Example app listening at ${url}`));
+
 process.on('uncaughtException', (err) => {
     console.error(`Uncaught Exception: ${err.message}`);
 });
+
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
 setInterval(async () => {
     console.log(url);
     try {
@@ -39,6 +46,7 @@ setInterval(async () => {
         response = null;
     }
 }, 15000);
+
 const cleanTokens = tokens.reduce((acc, token) => {
     const isValid = token?.token?.length > 30;
     const isDuplicate = acc.some(t => t.token === token.token);
@@ -50,6 +58,7 @@ const cleanTokens = tokens.reduce((acc, token) => {
     }
     return acc;
 }, []);
+
 for (const token of cleanTokens) {
     const client = new voiceClient(token);
     client.on('ready', (user) => {
